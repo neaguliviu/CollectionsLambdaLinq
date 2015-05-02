@@ -24,12 +24,40 @@ namespace Collections
 
         private static void Main(string[] args)
         {
-            EnumerableExample();
-            YieldExample();
-            CollectionExample();
-            ListExample();
-            DictionaryExample();
+            IndexerExample();
+            IComparableExample();
+            //EnumerableExample();
+            //YieldExample();
+            //CollectionExample();
+            //ListExample();
+            //DictionaryExample();
 
+        }
+
+        private static void IndexerExample()
+        {
+            var indexerBand = new BandsEnumerable(BandsArray);
+
+            for (int i = 0; i < BandsArray.Length; i++)
+            {
+                System.Console.WriteLine("Element #{0} = {1}", i, indexerBand[i].Name);
+            }
+
+            Console.WriteLine();
+        }
+
+        /*Sort a List<Band>, so you get the same result as when using the BasicBandsComparer,
+        but without using a Comparer (you will make use of the parameterless Sort() method of the list).*/
+        private static void IComparableExample()
+        {
+            var bandsList = new List<Band>(BandsArray);
+
+            bandsList.Sort();
+
+            foreach (var list in bandsList)
+            {
+                Console.WriteLine("{0} {1}", list.Name, list.StudioAlbums);
+            }
             
         }
 

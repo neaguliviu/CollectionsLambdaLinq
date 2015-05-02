@@ -27,6 +27,8 @@ namespace Collections.Enumerable
             return GetEnumerator();
         }
 
+
+        //Add an indexer to the BandsEnumerable class and print the items using the index (in Program.cs)
         public Band this[int i]
         {
             get
