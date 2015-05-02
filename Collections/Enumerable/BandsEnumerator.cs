@@ -21,7 +21,7 @@ namespace Collections.Enumerable
         {
             collection = bandsCollection.ToArray();
             //until "MoveNext" is called first time, the enumerator is positioned before the first element
-            currentIndex = -1;
+            currentIndex = collection.Count();
             currentBand = null;
         }
 
@@ -29,9 +29,9 @@ namespace Collections.Enumerable
 
         public bool MoveNext()
         {
-            currentIndex++;
+            currentIndex--;
 
-            if (currentIndex >= collection.Count())
+            if (currentIndex <= 0)
             {
                 return false;
             }
@@ -42,7 +42,8 @@ namespace Collections.Enumerable
 
         public void Reset()
         {
-            currentIndex = -1;
+            currentIndex = collection.Count();
+            currentBand = null;
         }
     }
 }

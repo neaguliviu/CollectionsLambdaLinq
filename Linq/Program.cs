@@ -36,9 +36,25 @@ namespace Linq
             };
         }
 
+        private static List<Member> GetMembers()
+        {
+            return new List<Member>
+            {
+                new Member(1, 1, "Member1"),
+                new Member(2, 6, "Member2"),
+                new Member(3, 2, "Member3"),
+                new Member(4, 3, "Member4"),
+                new Member(5, 7, "Member5"),
+                new Member(6, 5, "Member6"),
+                new Member(7, 4, "Member7"),
+            };
+        }
+
         private static readonly IEnumerable<Band> Bands = GetBands();
 
         private static readonly IEnumerable<Song> Songs = GetSongs();
+
+        private static readonly IEnumerable<Member> Members = GetMembers();
 
         static void Main(string[] args)
         {
@@ -120,9 +136,17 @@ namespace Linq
         {
             var myBands = GetBands();
 
-            //...Your code here....
+            var filterBands = Bands.Where(b => b.StudioAlbums > noOfAlbums);
 
-            ShowList(myBands);
+            ShowList(filterBands);
+        }
+
+        public static void AlbumsLinq1(int x)
+        {
+            var filteredBands = from band in Bands
+                where band.StudioAlbums > x
+                select band;
+            ShowList(filteredBands);
         }
 
         #endregion
@@ -195,13 +219,30 @@ namespace Linq
         #region GroupByGenre - TODO
 
         public static void GroupByGenreLync1()
-        { 
-            //.....Your code here......
+        {
+            var groupedBands =
+                        from band in Bands
+                        group band by band.Genre into bG
+                        select new
+                        {
+                            Genre = bG.Key,
+                            NumberOfBands = bG.Count()
+                        };
+
+            foreach (var group in groupedBands)
+            {
+                Console.WriteLine("Genre: " + group.Genre + " NumberOfBands: " + group.NumberOfBands);
+            }
         }
 
         public static void GroupByGenreLync2()
         {
-            //.....Your code here......
+            var groupedBands = Bands.GroupBy(b => b.Genre).Select(g => new { Genre = g.Key, NumberOfBands = g.Count() });
+
+            foreach (var group in groupedBands)
+            {
+                Console.WriteLine("Genre: " + group.Genre + " NumberOfBands: " + group.NumberOfBands);
+            }
         }
         
         #endregion
@@ -323,5 +364,115 @@ namespace Linq
 
         //HOME TODO - de creat entitatea Membru (Id, BandId, Name)
         //De implementat toate metodele de la join, group join Ex: (GetMembersForBandsLinq1)
+
+        #region GetMembersForAllBands()
+
+        //INNER JOIN
+        public static void GetMembersForBandsLinq1()
+        {
+            var bandMembers = from band in Bands
+                            join member in Members on band.Id equals member.BandId
+                            select new
+                            {
+                                Band = band.Name,
+                                Member = member.Name
+                            };
+
+            foreach (var bandMember in bandMembers)
+            {
+                Console.WriteLine("Band: " + bandMember.Band + " Member:" + bandMember.Member);
+            }
+        }
+
+        //INNER JOIN
+        public static void GetMembersForBandsLinq2()
+        {
+            var bandMembers = Bands.Join(Members, b => b.Id, m => m.BandId, (band, member) => new
+            {
+                Band = band.Name,
+                Member = member.Name
+            });
+
+            foreach (var bandMember in bandMembers)
+            {
+                Console.WriteLine("Band: " + bandMember.Band + " Member:" + bandMember.Member);
+            }
+        }
+
+        //LEFT JOIN
+        public static void GetMembersForAllBandsLinq1()
+        {
+            var bandMembersResult = from band in Bands
+                                  join member in Members on band.Id equals member.BandId into bandMembers
+                                  from item in bandMembers.DefaultIfEmpty(new Member(0, 0, "-"))
+                                  select new
+                                  {
+                                      Band = band.Name,
+                                      Member = item.Name
+                                  };
+
+            foreach (var bandMember in bandMembersResult)
+            {
+                Console.WriteLine("Band: " + bandMember.Band + " Member:" + bandMember.Member);
+            }
+        }
+
+        //LEFT JOIN
+        public static void GetMembersForAllBandsLinq2()
+        {
+            var bandMembersResult =
+                Bands.GroupJoin(
+                Members,
+                b => b.Id,
+                m => m.BandId,
+                (band, member) => new
+                {
+                    Band = band.Name,
+                    Member = member.DefaultIfEmpty(new Member(0, 0, "-"))
+                })
+                .SelectMany(a => a.Member.Select(m => new { Band = a.Band, Member = m.Name }));
+
+            foreach (var bandMember in bandMembersResult)
+            {
+                Console.WriteLine("Band: " + bandMember.Band + " Member:" + bandMember.Member);
+            }
+
+        }
+
+        //GROUP JOIN
+        public static void GetMembersForAllBandsGroupJoin1()
+        {
+            var bandMembersResult = from band in Bands
+                                  join member in Members on band.Id equals member.BandId into bandMembers
+                                  select new { BandName = band.Name, Members = bandMembers };
+
+            foreach (var band in bandMembersResult)
+            {
+                Console.WriteLine(band.BandName);
+
+                foreach (var member in band.Members)
+                {
+                    Console.WriteLine("---" + member.Name);
+                }
+            }
+        }
+
+        //GROUP JOIN
+        public static void GetMembersForAllBandsGroupJoin2()
+        {
+            var bandMembersResult = Bands.GroupJoin(Members, b => b.Id, m => m.BandId, (band, members) => new { BandName = band.Name, Members = members });
+
+            foreach (var band in bandMembersResult)
+            {
+                Console.WriteLine(band.BandName);
+
+                foreach (var member in band.Members)
+                {
+                    Console.WriteLine("---" + member.Name);
+                }
+            }
+        }
+
+        #endregion
     }
 }

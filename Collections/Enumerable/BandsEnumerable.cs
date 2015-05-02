@@ -26,5 +26,17 @@ namespace Collections.Enumerable
         {
             return GetEnumerator();
         }
+
+        public Band this[int i]
+        {
+            get
+            {
+                return bands[i];
+            }
+            set
+            {
+                bands[i] = value;
+            }
+        }
     }
 }
